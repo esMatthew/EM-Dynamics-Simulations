@@ -94,14 +94,14 @@ grid on;
 
 % ----Animation----------------------
 
-% ── 1. Calculate All Cartesian Coordinates Upfront ─────────────────────
+% Cartesian Coordinates
 x1 = L1 * sin(theta1);
 y1 = -L1 * cos(theta1);
 
 x2 = x1 + L2 * sin(theta2);
 y2 = y1 - L2 * cos(theta2);
 
-% ── 2. Setup the Animation Window ──────────────────────────────────────
+% Animation Window
 figure('Name', 'Double Pendulum Physical Space', 'Position', [100, 100, 700, 700])
 ax = axes;
 hold on; grid on; axis equal;
@@ -113,42 +113,39 @@ ylim([-max_reach, max_reach]);
 xlabel('X Position (m)'); ylabel('Y Position (m)');
 title('Chaotic Trajectory Animation');
 
-% ── 3. Initialize Graphics Objects (Static Frames) ────────────────────
+% Initialize Graphics Objects (Static Frames)
 % The trace line for Mass 2 (grows over time, doesn't clear)
 trace = animatedline('Color', [0.5 0.5 0.5], 'LineWidth', 1.0, 'LineStyle', ':');
 
-% The structural frame (drawn once, updated later)
-% We link the coordinates: [Pivot_x, Mass1_x, Mass2_x]
+% The structural frame
+% Link the coordinates: [Pivot_x, Mass1_x, Mass2_x]
 pendulum_frame = plot([0, x1(1), x2(1)], [0, y1(1), y2(1)], ...
                       'w-', 'LineWidth', 2.0);
 
-% The physical masses (bobs)
+% The physical masses
 bob1 = plot(x1(1), y1(1), 'bo', 'MarkerSize', 12, 'MarkerFaceColor', 'b');
 bob2 = plot(x2(1), y2(1), 'ro', 'MarkerSize', 12, 'MarkerFaceColor', 'r');
 
-% ── 4. Playback Animation Loop ─────────────────────────────────────────
+% Playback Animation Loop
 frame_skip = 4; % Skip frames so the animation matches real-world time pacing
 filename = 'DoublePendulum.gif';
 delayTime = 0.05; % Time between frames in seconds (e.g., 20 frames/sec)
 for k = 1:frame_skip:length(T)
-    % A. Append the current position of mass 2 to the trace path
+    % Append the current position of mass 2 to the trace path
     addpoints(trace, x2(k), y2(k));
     
-    % B. Update the skeletal lines connecting the joints
+    % Update the skeletal lines connecting the joints
     set(pendulum_frame, 'XData', [0, x1(k), x2(k)], 'YData', [0, y1(k), y2(k)]);
     
-    % C. Move the bob markers to the new joints
+    % Move the bob markers to the new joints
     set(bob1, 'XData', x1(k), 'YData', y1(k));
     set(bob2, 'XData', x2(k), 'YData', y2(k));
-    
-    % D. Flush graphics queue to render this frame
     drawnow;
     
     frame = getframe(gcf);          % Takes a snapshot of the current figure
     im = frame2im(frame);           % Converts the frame to an image matrix
     [imind, cm] = rgb2ind(im, 256); % Converts RGB image to an indexed image
-    
-    % ── Write to the GIF File ────────────────────────────
+
     if k == 1
         % Create the file on the very first frame
         imwrite(imind, cm, filename, 'gif', 'Loopcount', inf, 'DelayTime', delayTime);

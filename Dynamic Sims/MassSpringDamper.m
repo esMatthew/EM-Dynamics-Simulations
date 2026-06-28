@@ -1,37 +1,40 @@
+% Mass Spring Damper system modelled with a Delta Dirac function to
+% simulate a "kick" or impulse
+
 clear; close all; clc;
 
-% Parámetros
+% Paramters
 g    = 9.81; % m/s^2
 m    = 1.0;  % kg
 beta = 0.5;  % kg/s
 k    = 2.0;  % N/m
 F    = 0;    % N
 
-% Parámetros del impulso
+% Impulse Parameters (Delta Dirac parameters)
 
 t_kick  = 10.0;   % Tiempo en el que sucede
-dt_kick = 0.05;  % Duración del impácto
-F_kick  = 10;    % Fuerza del impacto
+dt_kick = 0.05;   % Duración del impácto
+F_kick  = 10;     % Fuerza del impacto
 
 J = F_kick * dt_kick; % Impulso [Ns]
 
-% Condiciones iniciales
-x0 = 0; % Posición inicial
-v0 = 0; % Velocidad inicial
+% Initial Conditions
+x0 = 0; % Initial Position
+v0 = 0; % Initial Velocity
 
-% Ecuación del movimiento (Tras la patada F = 0)
+% Equation of movement (After the kick, F = 0)
 eom = @(t, x) [x(2); 1/m * (-beta*x(2)-k*x(1)+F)];
 
-% Pre-Impacto
+% Pre-Impact
 opts  = odeset('RelTol', 1e-8, 'AbsTol', 1e-10);
 
 X0 = [x0; v0];
 [T1, X1] = ode45(eom, [0, t_kick], X0, opts);
 
 state_pre_kick = X1(end, :);
-state_post_kick = [state_pre_kick(1); state_pre_kick(2) + (J/m)]; % Contiene el estado de valores iniciales luego del impulso
+state_post_kick = [state_pre_kick(1); state_pre_kick(2) + (J/m)]; % Contains the initial conditions AFTER the kick
 
-% Post-Impacto
+% Post-Impact
 tspan = [t_kick, 100];
 
 [T2, X2] = ode45(eom, tspan, state_post_kick, opts);
@@ -40,7 +43,7 @@ T = [T1; T2];
 pos = [X1(:, 1); X2(:, 1)];
 vel = [X1(:, 2); X2(:, 2)];
 
-% Campo vectorial Espacio Fase
+% Phase Space Vector Field
 [X, DX] = meshgrid(linspace(-5, 5, 22), linspace(-5, 5, 22));
 
 U = DX;
@@ -51,7 +54,7 @@ mag = sqrt(U.^2 + V.^2) + 1e-6;
 U_n = U ./ mag;
 V_n = V ./ mag;
 
-% Configuración de la figura
+% Figure
 figure('Name', 'Diagrama de fase')
 hold on
 
@@ -72,7 +75,7 @@ end
 cb = colorbar;
 clim([mag_min, mag_max]);
 
-% Gráficas
+% Graphs
 plot(pos, vel, LineStyle="-",LineWidth=2,Color='white');
 plot(pos(1),   vel(1),   'wo', 'MarkerSize', 9, 'MarkerFaceColor', 'w', 'DisplayName', 'Start')
 plot(pos(end), vel(end), 'w^', 'MarkerSize', 9, 'MarkerFaceColor', 'k', 'DisplayName', 'End (settled)')

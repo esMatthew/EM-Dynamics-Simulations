@@ -1,60 +1,40 @@
-% =========================================================
-%  Simple pendulum with linear drag — Phase portrait
-%  with a single trajectory over the vector field
-%
-%  Equation of motion:
-%    theta_ddot = -(mu/m)*theta_dot - (g/L)*cos(theta)
-%
-%  State vector:  x = [theta ; theta_dot]
-%  x1 = theta        (angle, rad)
-%  x2 = theta_dot    (angular velocity, rad/s)
-% =========================================================
-
 clear; clc; close all;
 
-% ── Parameters ──────────────────────────────────────────
+% Parameters
 g   = 9.81;
 L   = 1.0;
 m   = 1.0;
 mu  = 0.5;
 
-% ── Initial conditions (your case study) ────────────────
+% Initial Conditions
 theta0    =  pi/2; % initial angle         (rad)
 thetadot0 =  0;     % initial angular vel.  (rad/s)
 
-% ── Equation of motion ──────────────────────────────────
+% Equation of motion
 eom = @(t, x) [ x(2) ;
                -(mu/m)*x(2) - (g/L)*cos(x(1)) ];
 
-% ── Vector field grid ───────────────────────────────────
+% Vector Field Grid
 [TH, DTH] = meshgrid(linspace(-pi, 2*pi, 26), linspace(-10, 10, 22));
 
 U = DTH;
 V = -(mu/m)*DTH - (g/L)*cos(TH);
 
-% Magnitude — used for both normalization and colormap
 mag = sqrt(U.^2 + V.^2) + 1e-6;
 
 % Normalize so all arrows are the same visual length
 U_n = U ./ mag;
 V_n = V ./ mag;
 
-% ── Figure ──────────────────────────────────────────────
+% Figure
 figure('Name', 'Phase portrait — single trajectory')
 hold on
-
-% ── Draw the vector field, colored by magnitude ─────────
-%
-%  quiver alone can't colormap individual arrows, so we loop
-%  over each grid point and color each arrow by its magnitude.
-%
-%  We normalize magnitude to [0,1] for the colormap lookup.
 
 mag_flat = mag(:);
 mag_min  = min(mag_flat);
 mag_max  = max(mag_flat);
 
-cmap = colormap(jet(256));   % 256-color jet palette
+cmap = colormap(jet(256));  
 
 for i = 1:numel(TH)
     % Map this arrow's magnitude to a color index
@@ -65,11 +45,10 @@ for i = 1:numel(TH)
            'Color', col, 'LineWidth', 0.8, 'MaxHeadSize', 2)
 end
 
-% ── Colorbar ─────────────────────────────────────────────
 cb = colorbar;
 clim([mag_min, mag_max]);
 
-% ── Integrate the single trajectory ─────────────────────
+% Solve for a single Trajectory
 x0    = [theta0; thetadot0];
 tspan = [0, 100];
 opts  = odeset('RelTol', 1e-8, 'AbsTol', 1e-10);
@@ -88,7 +67,7 @@ plot(theta(1),   thetadot(1),   'wo', 'MarkerSize', 9, ...
 plot(theta(end), thetadot(end), 'w^', 'MarkerSize', 9, ...
      'MarkerFaceColor', 'k', 'DisplayName', 'End (settled)')
 
-% ── Formatting ───────────────────────────────────────────
+% Formatting
 xlabel('$\theta$  (rad)',        'FontSize', 13, 'Interpreter','latex')
 ylabel('$\dot{\theta}$  (rad/s)', 'FontSize', 13, 'Interpreter','latex')
 title('Phase portrait', 'FontSize', 12)
@@ -99,7 +78,7 @@ xlim([-pi 2*pi]);  ylim([-10 10])
 grid on;  box on
 hold off
 
-% (Assuming you have already run the ODE solver and have T, theta, and thetadot)
+% Time Response
 
 figure(Name='Time response');
 plot(T, theta, LineWidth=2);
