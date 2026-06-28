@@ -12,7 +12,7 @@ T = 50; % Max time [s]
 dt = 0.01; % Time step [s]
 
 % Grid definition
-n = 20;
+n = 200;
 L = 10;
 [x, y] = meshgrid(linspace(-L, L, n), linspace(-L, L, n));
 
@@ -71,8 +71,8 @@ for t = 0:dt:T
     
         yq = A * sin(omega * t);
     
-        %set(hQ, 'XData', 0, 'YData', yq);
-        set(hE, 'UData', Ex, 'VData', Ey);
+        set(hQ, 'XData', 0, 'YData', yq);
+        %set(hE, 'UData', Ex, 'VData', Ey);
         set(hImg, 'CData', Eabs);
     
         title(sprintf('Electromagnetic wave radiation caused by oscillating charge t = %.2f s', t));

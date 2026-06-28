@@ -1,3 +1,4 @@
+%% Calculate the Electric Field in a charged wire
 clear; clc; close all;
 
 function [E_rho, E_z] = field_annulus(a1, a2, sigma, rho, th, z, Nr, Nth)

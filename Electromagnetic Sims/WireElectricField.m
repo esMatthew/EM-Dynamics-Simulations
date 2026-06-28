@@ -1,3 +1,5 @@
+%% Script to calculate the Static Electric Field on a charged wire
+
 clear; close all; clc;
 
 % Parameters
